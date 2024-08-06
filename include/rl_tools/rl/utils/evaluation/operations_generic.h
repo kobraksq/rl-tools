@@ -73,12 +73,14 @@ namespace rl_tools{
             results.episode_length[env_i] = 0;
             terminated[env_i] = false;
             auto& state = states[env_i];
+            state.IsEval = true;
             if(deterministic) {
                 rl_tools::initial_state(device, env, state);
             }
             else{
                 sample_initial_state(device, env, state, rng);
             }
+            state.IsEval = false;
         }
         for(TI step_i = 0; step_i < SPEC::STEP_LIMIT; step_i++) {
             for(TI env_i = 0; env_i < SPEC::N_EPISODES; env_i++) {

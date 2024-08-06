@@ -23,6 +23,16 @@ namespace rl_tools{
     template <typename DEV_SPEC>
     void init(devices::CPU_OPENBLAS<DEV_SPEC>& device){
 //        openblas_set_num_threads(4);
+        if (!device.initialized) {
+            time_t now;
+            time(&now);
+            char buf[sizeof "0000-00-00T00:00:00Z"];
+            strftime(buf, sizeof buf, "%FT%TZ", localtime(&now));
+            device.run_name = devices::cpu::sanitize_file_name(buf);
+            device.runs_path = std::string("runs");
+            device.run_path = device.runs_path + "/" + device.run_name;
+            device.initialized = true;
+        }
     }
 
 }
