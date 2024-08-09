@@ -36,7 +36,7 @@ namespace rl_tools {
     void load(DEVICE& device, nn::layers::sample_and_squash::LayerGradient<SPEC>& layer, HighFive::Group group) {
         load(device, (nn::layers::sample_and_squash::LayerBackward<SPEC>&)layer, group);
         load(device, layer.log_probabilities, group, "log_probabilities");
-        load(device, layer.log_alpha, group.getGroup("output"));
+        load(device, layer.log_alpha, group.getGroup("log_alpha"));
         load(device, layer.output, group, "output");
     }
 }
