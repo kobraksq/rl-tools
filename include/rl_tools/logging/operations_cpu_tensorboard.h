@@ -24,6 +24,17 @@ namespace rl_tools{
             logger.topic_frequency_dict[key] += 1;
         }
     }
+    std::string sanitize_file_name(const std::string &input) {
+        std::string output = input;
+
+        const std::string invalid_chars = R"(<>:\"/\|?*)";
+
+        std::replace_if(output.begin(), output.end(), [&invalid_chars](const char &c) {
+            return invalid_chars.find(c) != std::string::npos;
+        }, '_');
+
+        return output;
+    }
     template <typename DEVICE, typename SPEC>
     void init(DEVICE& device, devices::logging::CPU_TENSORBOARD<SPEC>& logger, std::filesystem::path run_dir){
         // the path is passed through the (CPU) device since the CPU device always supports the stdlib with std::string etc.
@@ -32,7 +43,18 @@ namespace rl_tools{
             std::filesystem::create_directories(run_dir);
         }
 
-        auto log_file = run_dir / std::string("logs.tfevents");
+        std::string log_name;
+        {
+            auto now = std::chrono::system_clock::now();
+            auto local_time = std::chrono::system_clock::to_time_t(now);
+            std::tm* tm = std::localtime(&local_time);
+
+            std::ostringstream oss;
+            oss << std::put_time(tm, "%FT%T%z");
+            log_name = sanitize_file_name(oss.str())+".tfevents";
+        }
+
+        auto log_file = run_dir / log_name;
         std::cerr << "Tensorboard Logger logging to: " << log_file.string() << std::endl;
         TensorBoardLoggerOptions opts;
         opts.flush_period_s(1);
